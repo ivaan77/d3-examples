@@ -17,7 +17,7 @@ const draw = async () => {
     }
 
     dimensions.containerWidth = dimensions.width - dimensions.margin.left - dimensions.margin.right;
-    dimensions.containerHeight = dimensions.height- dimensions.margin.top - dimensions.margin.bottom;
+    dimensions.containerHeight = dimensions.height - dimensions.margin.top - dimensions.margin.bottom;
 
     // draw image
     const svg = d3.select('#chart')
@@ -36,7 +36,7 @@ const draw = async () => {
 
     const yScale = d3.scaleLinear()
         .domain(d3.extent(dataSet, yAccessor))
-        .rangeRound([0, dimensions.containerHeight])
+        .rangeRound([dimensions.containerHeight, 0])
         .nice()
         .clamp(true)
 
@@ -48,21 +48,38 @@ const draw = async () => {
         .attr('cy', data => yScale(yAccessor(data)))
         .attr('r', 5)
         .attr('fill', 'red')
+        .attr('data-temp', yAccessor)
 
     // axes
-
-    const xAxis = d3.axisBottom(xScale);
+    const xAxis = d3.axisBottom(xScale)
+        .ticks(5)
+        .tickFormat((labelValue) => labelValue * 100 + '%')
+    //.tickValues([0.4,0.5,0.8])
 
     const xAxisGroup = container.append('g')
         .call(xAxis)
         .style('transform', `translateY(${dimensions.containerHeight}px)`)
         .classed('axis', true);
 
-    xAxisGroup.append('text', )
+    xAxisGroup.append('text',)
         .attr('x', dimensions.containerWidth / 2)
         .attr('y', dimensions.margin.bottom - 10)
         .attr('fill', 'black')
         .text('Humidity')
+
+    const yAxis = d3.axisLeft(yScale);
+
+    const yAxisGroup = container.append('g')
+        .call(yAxis)
+        .classed('axis', true);
+
+    yAxisGroup.append('text')
+        .attr('x', -dimensions.height / 2)
+        .attr('y', -dimensions.margin.left + 15)
+        .attr('fill', 'black')
+        .html('Temperature &deg; F')
+        .style('transform', 'rotate(270deg)')
+        .style('text-anchor', 'middle')
 }
 
 draw();
